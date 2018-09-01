@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
+    <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>The Wall</title>
+</head>
+
+<body>
+    
+    <div class="container">
+        
+        <div class="header">
+            <h1>Coding Dojo Wall</h1>
+            <div class="navigation">
+                {% if session['user_name'] %}
+                    Welcome {{ session['user_name'] }}!
+                    <a href="/logout">Log Out</a>
+                {% endif %}
+            </div>
+        </div>
+        <br>
+        <!-- post message container -->
+        <div class="create-message">
+            <h3>Post a message</h3>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class=flashes>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <form action="/message/create" method='post'>
+                <textarea name="message" placeholder="Say something!" cols="120" rows="50"></textarea>
+                <input type="submit" value="Post Message">
+            </form>
+        </div>
+
+        <div class="messages-container">
+            <h3>Posted Messages</h3>
+            {% if data['messages'] %}
+                {% for message in data['messages'] %}
+                    <div class="posted-message">
+                        <h6>{{ message['first'] }} {{ message['last'] }} @ {{ message['created_at'] }}</h6>
+                        <p>"{{ message['message'] }}"</p>  
+                        
+                        <div class="comment-container">
+                            {% if data['comments'] %}
+                                {% for comment in data['comments'] %}
+                                    {% if comment['message_id'] == message['id'] %} 
+                                        
+                                        <div class="comment">
+                                            <h6>{{ comment['first'] }} {{ comment['last'] }} @ {{ comment['created_at'] }}</h6>
+                                            <p>"{{ comment['comment'] }}"</p>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}  
+                            
+                            <form action="/comments/create/{{ message['id'] }}" method="post">
+                                <textarea name="comment" placeholder="Reply this message!" cols="50" rows="10"></textarea>
+                                <input type="submit" value="Post Comment" >
+                            </form>    
+                        </div>
+                    </div>  
+                {% endfor %}    
+            {% endif %}        
+        </div>
+    </div>        
+</body>
+</html>
